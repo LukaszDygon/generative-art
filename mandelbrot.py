@@ -29,7 +29,7 @@ class Madndelbrot():
         self.images = []
         self.current_frame = 0
         self.zoom_rate = 1.1
-        self.save_location = f'{self.width}x{self.height}it{self.iterations}'
+        self.save_location = os.path.join('out', f'{self.width}x{self.height}it{self.iterations}')
 
         self.xmin, self.xmax = -2, 2
         self.ymin, self.ymax = -2 * self.height/self.width, 2 * self.height/self.width
@@ -40,10 +40,11 @@ class Madndelbrot():
     def draw_mandelbrot(self):
         c = self._init_matrix()
         image_arr = self._f(c)
-        image = Image.fromarray(image_arr.astype(np.uint8))
+        png_arr = np.multiply(image_arr[:,:,np.newaxis], np.array([[[0.2,0.5,0.8]]]))
+        image = Image.fromarray(png_arr.astype(np.int8), mode='RGB')
         self.frames.append(image_arr)
         self.images.append(image)
-        with open(os.path.join(self.save_location, f'{self.current_frame}.tiff'), 'wb+') as f:
+        with open(os.path.join(self.save_location, f'{self.current_frame}.png'), 'wb+') as f:
             image.save(f)
         self.current_frame += 1
     
@@ -56,10 +57,10 @@ class Madndelbrot():
         for i in range(self.iterations):
             z = z ** 2 + c
             if abs(z) >= 2:
-                return 126 * (1 - i/self.iterations)
+                return 126 + 126 * (1 - i/self.iterations)
         return 0
 
-    def _f(self, c):
+    def _f(self, c) -> np.array:
         return np.vectorize(self._get_stability_magnitude)(c)
 
     def _find_closest_boundary(self) -> Tuple[int, int]:
@@ -89,15 +90,15 @@ class Madndelbrot():
                 center[1] + ( self.ymin-center[1]) / self.zoom_rate, \
                 center[1] + ( self.ymax-center[1]) / self.zoom_rate
 
-        re = np.linspace(self.xmin, self.xmax, self.width)
-        im = np.linspace(self.ymin, self.ymax, self.height)
+        re = np.linspace(self.xmin, self.xmax, self.width, dtype=np.longdouble)
+        im = np.linspace(self.ymin, self.ymax, self.height, dtype=np.longdouble)
 
         return re[np.newaxis, :] + im[:, np.newaxis] * 1j
 
 
 def main(args):
     mandelbrot = Madndelbrot(args)
-    for _ in range(1000):
+    for _ in range(args.zoom):
         mandelbrot.draw_mandelbrot()
     mandelbrot.save_gif()
 
@@ -107,9 +108,10 @@ if __name__ == '__main__':
     parser.add_argument('-it', '--iterations', type=int, default=256, help='Number of iterations')
     parser.add_argument('-w', '--width', type=int, default=512, help='The width of the canvas')
     parser.add_argument('-hh', '--height', type=int, default=512, help='The height of the canvas')
-    parser.add_argument('-x', '--x', type=float, default=0.3, help='starting x coordinate')
-    parser.add_argument('-y', '--y', type=float, default=0.3, help='starting y coordinate')
-
+    parser.add_argument('-x', '--x', type=float, default=0.5, help='starting x coordinate')
+    parser.add_argument('-y', '--y', type=float, default=0.5, help='starting y coordinate')
+    parser.add_argument('-z', '--zoom', type=int, default=200, help='the number of zoom iterations')
+    
     args = parser.parse_args()
 
     main(args)
