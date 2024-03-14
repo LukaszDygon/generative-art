@@ -41,19 +41,16 @@ python mandelbrot.py -it 1000 -w 1024 -hh 1024 -z 200
 To use the program, run the following command:
 
 ```
-python squares.py -r <rows> -c <columns> -min <min_size> -max <max_size>
+python squares.py -w <width> -hh <height> -b <border> -s <space> -c <columns> -d <distortion>
 ```
 where:
 ```
--r: Number of rows (default: 10)
--c: Number of columns (default: 10)
--min: Minimum size of squares in pixels (default: 10)
--max: Maximum size of squares in pixels (default: 100)
-```
-eg.:
-
-```
-python squares.py -r 20 -c 20 -min 20 -max 100
+-w: The width of the canvas (default: 1000) 
+-hh: The height of the canvas (default: 1600)
+-b: Border size in pixels (default: 200)
+-s: Space between shapes in pixels (default: 10)
+-c: Number of shapes per row (default: 10)
+-d:Ddistortion magnitude affecting rotation and traslation of shapes (default: 2)
 ```
 
 ## License
