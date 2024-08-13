@@ -32,7 +32,6 @@ def draw_heartbeat(width: int, height: int, border: int, rows: int, magnitude: i
     row_height = (args.height - args.border * 2) // args.rows
     inflection_section_width = (width - border * 2) // heartbeat_inflections * heartbeat_length
     inflection_start = border + (width - border * 2) * heartbeat_offset
-    inflection_end = border + (width - border * 2) * (heartbeat_offset + heartbeat_length)
     for row in range(-magnitude, rows + magnitude):
         color = tuple(np.random.choice(range(30, 256), size=3))
         coords = [(border, border + row_height * row), (inflection_start, border + row_height * row)]
@@ -45,15 +44,23 @@ def draw_heartbeat(width: int, height: int, border: int, rows: int, magnitude: i
         coords += [(coord[0], coord[1] + row_height) for coord in coords[::-1]]  # 'bottom' of the shape
         shape = geom.Polygon(coords)
         canvas.polygon(tuple(shape.exterior.coords), fill=color)
+    draw_border(canvas, border)
 
     return im
+
+def draw_border(canvas: ImageDraw.ImageDraw, border: int) -> ImageDraw.ImageDraw:
+        canvas.rectangle([(0,0), (canvas.im.size[0],border)], fill='#efeee4')
+        canvas.rectangle([(0,canvas.im.size[1]-border), (canvas.im.size[0],canvas.im.size[1])], fill='#efeee4')
+        canvas.rectangle([(0,0), (border,canvas.im.size[1])], fill='#efeee4')
+        canvas.rectangle([(canvas.im.size[0]-border,0), (canvas.im.size[0],canvas.im.size[1])], fill='#efeee4')
+
 
 if __name__ == '__main__':
     # Parse the command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--width', type=int, default=1000, help='The width of the canvas')
-    parser.add_argument('-hh', '--height', type=int, default=1600, help='The height of the canvas')
-    parser.add_argument('-b', '--border', type=int, default=0, help='Border size in px')
+    parser.add_argument('-w', '--width', type=int, default=3000, help='The width of the canvas')
+    parser.add_argument('-hh', '--height', type=int, default=3000, help='The height of the canvas')
+    parser.add_argument('-b', '--border', type=int, default=100, help='Border size in px')
     parser.add_argument('-m', '--magnitude', type=int, default=4, help='Magnitude of the \'heartbeat\'')
     parser.add_argument('-r', '--rows', type=int, default=20, help='Number of different colored rows')
     # parser.add_argument('-d', '--distortion', type=float, default=0.5, help='Distortion magnitude affecting the alignment after heartbeat')
